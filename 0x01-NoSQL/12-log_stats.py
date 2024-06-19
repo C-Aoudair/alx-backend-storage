@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-""" This Module contains script that provides some stats about Nginx
-    logs stored in MongoDB.
+"""
+This Module contains script that provides some stats about Nginx
+logs stored in MongoDB.
 """
 
 from pymongo import MongoClient
 
-client = MongoClient('mongodb://127.0.0.1:27017')
+client = MongoClient("mongodb://127.0.0.1:27017")
 logs = client.logs.nginx
 
 print(f"{logs.count_documents({})} logs")
@@ -14,4 +15,6 @@ print(f"\tmethod POST: {logs.count_documents({'method': 'POST'})}")
 print(f"\tmethod PUT: {logs.count_documents({'method': 'PUT'})}")
 print(f"\tmethod PATCH: {logs.count_documents({'method': 'PATCH'})}")
 print(f"\tmethod DELETE: {logs.count_documents({'method': 'DELETE'})}")
-print(f"{logs.count_documents({'method': 'GET', 'path': '/status'})} status check")
+print("{} status check".format(
+    logs.count_documents({'method': 'GET', 'path': '/status'})
+))

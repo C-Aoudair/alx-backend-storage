@@ -10,10 +10,12 @@ if __name__ == "__main__":
 
     schools = list_all(school_collection)
     for school in schools:
-        print("[{}] {} {}".format(school.get('_id'), school.get('name'), school.get('topics', "")))
+        print("[{}] {} {}".format(school.get('_id'),
+              school.get('name'), school.get('topics', "")))
 
     update_topics(school_collection, "UCSF", ["iOS"])
 
     schools = list_all(school_collection)
     for school in schools:
-        print("[{}] {} {}".format(school.get('_id'), school.get('name'), school.get('topics', "")))
+        print("[{}] {} {}".format(school.get('_id'),
+              school.get('name'), school.get('topics', "")))
