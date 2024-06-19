@@ -11,6 +11,7 @@ if __name__ == "__main__":
     logs = client.logs.nginx
 
     print(f"{logs.count_documents({})} logs")
+    print("Methods:")
     print(f"\tmethod GET: {logs.count_documents({'method': 'GET'})}")
     print(f"\tmethod POST: {logs.count_documents({'method': 'POST'})}")
     print(f"\tmethod PUT: {logs.count_documents({'method': 'PUT'})}")
