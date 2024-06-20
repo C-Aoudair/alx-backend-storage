@@ -2,7 +2,21 @@
 """ This module contains Cache class."""
 import redis
 import uuid
+from functools import wraps
 from typing import Union
+
+
+def count_calls(method):
+    """
+    decorator that takes a single method Callable argument
+    and returns a Callable.
+    """
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """ wrapper function for decorator"""
+        self._redis.incr(method.__qualname__)
+        return method(self, *args, **kwargs)
+    return wrapper
 
 
 class Cache():
@@ -11,6 +25,7 @@ class Cache():
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """ takes a data argument and returns a string"""
         key = str(uuid.uuid4())
