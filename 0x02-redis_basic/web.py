@@ -15,7 +15,7 @@ def count(func: Callable) -> Callable:
         client = redis.Redis(host='localhost', port=6379)
         client.incr(f"count:{url}")
         response = func(url)
-        client.set(url, response, ex=10)
+        client.expire(f"count:{url}", 10)
         return response
 
     return inner
