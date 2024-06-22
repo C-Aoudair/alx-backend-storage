@@ -7,7 +7,7 @@ from functools import wraps
 from typing import Callable
 
 
-cache = redis.Redis(host='localhost', port= 6379)
+cache = redis.Redis(host='localhost', port=6379)
 """
 The module-level Redis instance.
 """
