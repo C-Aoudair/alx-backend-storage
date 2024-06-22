@@ -7,17 +7,18 @@ import requests
 
 
 def count(func: Callable) -> Callable:
-    """ 
+    """
     function decorator that count how many times a given url
     was accessed.
     """
     def inner(url: str) -> str:
         client = redis.Redis(host='localhost', port=6379)
         client.incr(f"count:{url}")
-        return func(url)
+        response = func(url)
+        client.set(url, response, ex=10)
+        return response
 
     return inner
-
 
 
 @count
@@ -26,4 +27,4 @@ def get_page(url: str) -> str:
     It uses the requests module to obtain the HTML content
     of a particular URL and returns it.
     """
-    return requests.get(url)
+    return requests.get(url).text
