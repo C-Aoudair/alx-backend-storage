@@ -14,7 +14,10 @@ def count(func: Callable) -> Callable:
     def inner(url: str) -> str:
         client = redis.Redis(host='localhost', port=6379)
         client.incr(f"count:{url}")
+        if client.get(f"{url}"):
+            return client.get(f"{url}").decode('utf-8')
         response = func(url)
+        client.set(f"count:{url}", 0)
         client.set(f"{url}", response, 10)
         return response
 
