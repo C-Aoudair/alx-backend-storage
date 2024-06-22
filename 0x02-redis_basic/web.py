@@ -23,11 +23,11 @@ def count(func: Callable) -> Callable:
         The wrapper function for caching the output.
         """
         cache.incr(f'count:{url}')
-        result = cache.get(f'result:{url}')
+        result = cache.get(f'{url}')
         if result:
             return result.decode('utf-8')
         result = func(url)
-        cache.setex(f'result:{url}', 10, result)
+        cache.setex(f'{url}', 10, result)
         return result
     return wrapper
 
