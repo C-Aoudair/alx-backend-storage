@@ -1,28 +1,31 @@
 #!/usr/bin/env python3
 """ This module contains get_page function."""
-
-from functools import wraps
-from typing import Callable
 import redis
 import requests
+from functools import wraps
 
+cache = redis.Redis(host='localhost', port=6379, db=0)
 
-def count(func: Callable) -> Callable:
-    """
-    function decorator that count how many times a given url
-    was accessed.
-    """
+def cache_page(func):
+    """ decorator function"""
     @wraps(func)
-    def inner(url: str) -> str:
-        client = redis.Redis(host='localhost', port=6379)
-        client.incr(f"count:{url}")
-        if client.get(f"{url}"):
-            return client.get(f"{url}").decode('utf-8')
-        response = func(url)
-        client.set(f"{url}", response, 10)
-        return response
-
-    return inner
+    def wrapper(url: str) -> str:
+        cache_key = f"page:{url}"
+        count_key = f"count:{url}"
+        
+        cached_page = cache.get(cache_key)
+        if cached_page:
+            return cached_page.decode('utf-8')
+        
+        page_content = func(url)
+        
+        cache.setex(cache_key, 10, page_content)
+        
+        cache.incr(count_key)
+        
+        return page_content
+    
+    return wrapper
 
 
 @count
