@@ -1,41 +1,38 @@
 #!/usr/bin/env python3
 """ This module contains get_page function."""
 
-from typing import Callable
 import redis
 import requests
 from functools import wraps
-
-cache = redis.Redis(host="localhost", port=6379, db=0)
-
-
-def cache_page(func: Callable) -> Callable:
-    """decorator function"""
-
-    @wraps(func)
-    def wrapper(url: str) -> str:
-        cache_key = f"page:{url}"
-        count_key = f"count:{url}"
-
-        cache.incr(count_key)
-
-        cached_page = cache.get(cache_key)
-        if cached_page:
-            return cached_page.decode("utf-8")
-
-        page_content = func(url)
-
-        cache.setex(cache_key, 10, page_content)
-
-        return page_content
-
-    return wrapper
+from typing import Callable
 
 
-@count
+redis_store = redis.Redis()
+'''The module-level Redis instance.
+'''
+
+
+def data_cacher(method: Callable) -> Callable:
+    '''Caches the output of fetched data.
+    '''
+    @wraps(method)
+    def invoker(url) -> str:
+        '''The wrapper function for caching the output.
+        '''
+        redis_store.incr(f'count:{url}')
+        result = redis_store.get(f'result:{url}')
+        if result:
+            return result.decode('utf-8')
+        result = method(url)
+        redis_store.set(f'count:{url}', 0)
+        redis_store.setex(f'result:{url}', 10, result)
+        return result
+    return invoker
+
+
+@data_cacher
 def get_page(url: str) -> str:
-    """
-    It uses the requests module to obtain the HTML content
-    of a particular URL and returns it.
-    """
+    '''Returns the content of a URL after caching the request's
+    response, and tracking the request.
+    '''
     return requests.get(url).text
